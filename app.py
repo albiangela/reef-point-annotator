@@ -292,6 +292,11 @@ INDEX_HTML = """
   }
   #crosshair::before { top: 50%; left: 0; width: 100%; height: 2px; margin-top: -1px; }
   #crosshair::after { left: 50%; top: 0; height: 100%; width: 2px; margin-left: -1px; }
+  #annotatedBadge {
+    position: absolute; top: 12px; left: 12px; background: rgba(46, 204, 113, 0.92);
+    color: #0e1a12; font-size: 13px; font-weight: 700; padding: 5px 12px;
+    border-radius: 999px; display: none;
+  }
   #bottombar {
     display: flex; align-items: center; justify-content: center; gap: 10px;
     padding: 10px; background: #1c2126; border-top: 1px solid #2b3238;
@@ -354,6 +359,7 @@ INDEX_HTML = """
     <div id="imgWrap">
       <img id="mainImg" src="">
       <div id="crosshair"></div>
+      <div id="annotatedBadge"></div>
     </div>
     <div id="bottombar">
       <button id="prevBtn">&larr; Prev</button>
@@ -458,12 +464,16 @@ function render() {
   document.getElementById('jumpBox').value = idx + 1;
 
   const curLabel = document.getElementById('currentLabel');
+  const badge = document.getElementById('annotatedBadge');
   if (im.class) {
     curLabel.textContent = im.class;
     curLabel.classList.add('set');
+    badge.textContent = '✓ ' + im.class;
+    badge.style.display = 'block';
   } else {
     curLabel.textContent = 'No label';
     curLabel.classList.remove('set');
+    badge.style.display = 'none';
   }
 
   document.querySelectorAll('.clsBtn').forEach(btn => {
@@ -473,6 +483,10 @@ function render() {
 
 async function annotate(label) {
   const im = IMAGES[idx];
+  if (im.class && im.class !== label) {
+    const ok = confirm(`This image is already labeled "${im.class}". Change it to "${label}"?`);
+    if (!ok) return;
+  }
   im.class = label;
   await fetch('/api/annotate', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
