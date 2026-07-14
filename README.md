@@ -22,26 +22,33 @@ point images and select it (or pass the path directly:
 `python3 app.py "/path/to/image/folder"`). A browser tab then opens
 automatically at `http://127.0.0.1:5057`.
 
-## Running it on Windows (for someone you send this to)
+## Running it on Windows
 
 1. **Install Python** (skip if already installed): go to
-   https://www.python.org/downloads/, download the installer, run it,
-   and on the very first screen **check the box "Add Python to PATH"**
-   before clicking Install.
-2. **Copy this whole `annotation_tool` folder** to their computer,
-   plus the folder of point images they need to annotate.
-3. **Double-click `run.bat`** inside `annotation_tool`.
+   https://www.python.org/downloads/, download the installer, and run
+   it. On the very first screen, **check the box "Add Python to PATH"**
+   before clicking Install — easy to miss but important.
+2. **Download this tool**: go to
+   https://github.com/albiangela/reef-point-annotator, click the green
+   **Code** button, then **Download ZIP**. Unzip it anywhere (e.g. your
+   Desktop).
+3. **Double-click `run.bat`** inside the unzipped `reef-point-annotator`
+   folder.
    - A black window opens briefly and installs the one required
      package (Flask) automatically.
-   - A **folder-picker window** then pops up — browse to the folder of
-     point images and select it.
-4. A browser tab opens automatically. If it doesn't, open
-   `http://127.0.0.1:5057` manually in Chrome or Edge.
-5. Click a class button (or press its keyboard shortcut) for each
-   image. It auto-advances to the next one.
+   - A **folder-picker window** then pops up — browse to the folder
+     containing the point images you need to annotate (the one with
+     files named like `PT1080_GPAB1439_x2701_y2881.png`) and select it.
+4. A browser tab opens automatically. If it doesn't, open Chrome or
+   Edge and go to `http://127.0.0.1:5057`.
+5. Click a class button (or press its keyboard shortcut, shown on each
+   button) for each image. It saves and auto-advances to the next one.
 6. To stop, close the browser tab and close the black command window
    (or press Ctrl+C in it). Progress is saved in `annotations.csv`
-   inside the image folder — reopening later resumes where they left off.
+   inside the image folder — reopening later resumes where you left off.
+
+If a class you need isn't in the list, use the "+ Add class" box in
+the sidebar to add your own (see below).
 
 ## Adding a class that isn't in the list
 
