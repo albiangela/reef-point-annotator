@@ -99,9 +99,32 @@ TARGET_DIR, IMAGES, SKIPPED_COUNT = resolve_target_dir()
 CSV_PATH = TARGET_DIR / "annotations.csv"
 
 # The built-in class list lives in classes.json (next to this script) so it
-# can be edited without touching code. Each group is
-# {"group": name, "classes": [{"label", "key", "color"}, ...]}.
+# can be edited without touching code. Two kinds of entries:
+#   Flat:       {"group": name, "classes": [{"label", "key", "color"}, ...]}
+#   Morphology: {"morphology": name, "key": selector_key,
+#                "genera": [{"genus": name, "classes": [...]}, ...]}
+# Morphology entries drive the two-step UI: pick a morphology (step 1),
+# then a genus within it (step 2). Genus-level shortcut keys only need to be
+# unique within their own morphology, since only one morphology's genus
+# panel is visible at a time.
 CLASSES_CONFIG_PATH = Path(__file__).resolve().parent / "classes.json"
+
+
+def _parse_classes(raw_classes, seen_labels, seen_keys):
+    items = []
+    for c in raw_classes:
+        label = c["label"]
+        key = (c.get("key") or "").lower()
+        color = c.get("color", "#7f8c8d")
+        if label.lower() in seen_labels:
+            raise ValueError(f"Duplicate class label in classes.json: {label!r}")
+        if key and key in seen_keys:
+            raise ValueError(f"Duplicate shortcut key in classes.json: {key!r} ({label})")
+        seen_labels.add(label.lower())
+        if key:
+            seen_keys.add(key)
+        items.append((label, key, color))
+    return items
 
 
 def load_class_groups():
@@ -109,27 +132,37 @@ def load_class_groups():
         data = json.load(f)
     groups = []
     seen_labels = set()
-    seen_keys = set()
-    for group in data:
-        items = []
-        for c in group["classes"]:
-            label = c["label"]
-            key = (c.get("key") or "").lower()
-            color = c.get("color", "#7f8c8d")
-            if label.lower() in seen_labels:
-                raise ValueError(f"Duplicate class label in classes.json: {label!r}")
-            if key and key in seen_keys:
-                raise ValueError(f"Duplicate shortcut key in classes.json: {key!r} ({label})")
-            seen_labels.add(label.lower())
-            if key:
-                seen_keys.add(key)
-            items.append((label, key, color))
-        groups.append((group["group"], items))
+    seen_global_keys = set()
+    for entry in data:
+        if "morphology" in entry:
+            name = entry["morphology"]
+            selector_key = (entry.get("key") or "").lower()
+            if selector_key and selector_key in seen_global_keys:
+                raise ValueError(f"Duplicate shortcut key in classes.json: {selector_key!r} ({name})")
+            if selector_key:
+                seen_global_keys.add(selector_key)
+            genera = []
+            seen_local_keys = set()
+            for g in entry["genera"]:
+                items = _parse_classes(g["classes"], seen_labels, seen_local_keys)
+                genera.append((g["genus"], items))
+            groups.append({"type": "morphology", "name": name, "key": selector_key, "genera": genera})
+        else:
+            items = _parse_classes(entry["classes"], seen_labels, seen_global_keys)
+            groups.append({"type": "flat", "name": entry["group"], "items": items})
     return groups
 
 
 CLASS_GROUPS = load_class_groups()
-ALL_CLASSES = [label for _, items in CLASS_GROUPS for label, _, _ in items]
+ALL_CLASSES = [
+    label
+    for group in CLASS_GROUPS
+    for label in (
+        [label for _, items in group["genera"] for label, _, _ in items]
+        if group["type"] == "morphology"
+        else [label for label, _, _ in group["items"]]
+    )
+]
 
 # Single-key shortcuts still free after classes.json claims its own, used to
 # auto-assign a shortcut to any class added at runtime via "+ Add class".
@@ -160,7 +193,15 @@ def all_class_labels():
 
 
 def used_shortcut_keys():
-    keys = {key.lower() for _, items in CLASS_GROUPS for _, key, _ in items}
+    keys = set()
+    for group in CLASS_GROUPS:
+        if group["type"] == "morphology":
+            if group["key"]:
+                keys.add(group["key"].lower())
+            for _, items in group["genera"]:
+                keys |= {key.lower() for _, key, _ in items if key}
+        else:
+            keys |= {key.lower() for _, key, _ in group["items"] if key}
     keys |= {key.lower() for _, key, _ in CUSTOM_CLASSES if key}
     return keys
 
@@ -199,15 +240,20 @@ def index():
 
 @app.route("/api/list")
 def api_list():
-    groups = list(CLASS_GROUPS)
+    morphologies = [
+        {"name": g["name"], "key": g["key"], "genera": g["genera"]}
+        for g in CLASS_GROUPS if g["type"] == "morphology"
+    ]
+    flat_groups = [(g["name"], g["items"]) for g in CLASS_GROUPS if g["type"] == "flat"]
     if CUSTOM_CLASSES:
-        groups.append(("Custom", CUSTOM_CLASSES))
+        flat_groups.append(("Custom", CUSTOM_CLASSES))
     return jsonify({
         "images": [
             {**im, "class": ANNOTATIONS.get(im["filename"])}
             for im in IMAGES
         ],
-        "groups": groups,
+        "morphologies": morphologies,
+        "flatGroups": flat_groups,
         "dir": str(TARGET_DIR),
         "skipped": SKIPPED_COUNT,
     })
@@ -344,6 +390,27 @@ INDEX_HTML = """
   #addClassBtn { background: #2b3238; color: #e8e8e8; border: none; border-radius: 6px;
     padding: 7px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; }
   #addClassBtn:hover { background: #384049; }
+  .morphGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+  .morphBtn {
+    position: relative; border: 2px solid transparent; border-radius: 8px;
+    padding: 14px 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+    text-align: center; background: #2b3238; color: #e8e8e8;
+  }
+  .morphBtn:hover { background: #384049; }
+  .morphBtn .key {
+    position: absolute; top: 4px; right: 6px; font-size: 10px; font-weight: 700;
+    background: rgba(0,0,0,0.25); color: #fff; border-radius: 3px; padding: 0 4px;
+  }
+  #backBtn {
+    display: flex; align-items: center; gap: 6px; background: #2b3238; color: #e8e8e8;
+    border: none; border-radius: 6px; padding: 7px 10px; font-size: 12px; cursor: pointer;
+    margin-bottom: 12px; width: 100%;
+  }
+  #backBtn:hover { background: #384049; }
+  #step1Label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+    color: #7f8c8d; margin: 0 0 6px 2px;
+  }
 </style>
 </head>
 <body>
@@ -381,15 +448,26 @@ INDEX_HTML = """
 </div>
 <script>
 let IMAGES = [];
-let GROUPS = [];
+let MORPHOLOGIES = [];
+let FLAT_GROUPS = [];
 let idx = 0;
+let activeMorph = null; // name of the morphology whose genus panel (step 2) is open, or null for step 1
+
+function morphOfLabel(label) {
+  for (const m of MORPHOLOGIES) {
+    for (const [, items] of m.genera) {
+      if (items.some(([l]) => l === label)) return m.name;
+    }
+  }
+  return null;
+}
 
 async function load() {
   const res = await fetch('/api/list');
   const data = await res.json();
   IMAGES = data.images;
-  GROUPS = data.groups;
-  renderGroups();
+  MORPHOLOGIES = data.morphologies;
+  FLAT_GROUPS = data.flatGroups;
   const firstUnlabeled = IMAGES.findIndex(im => !im.class);
   idx = firstUnlabeled === -1 ? 0 : firstUnlabeled;
   render();
@@ -398,8 +476,8 @@ async function load() {
 async function refreshGroups() {
   const res = await fetch('/api/list');
   const data = await res.json();
-  GROUPS = data.groups;
-  renderGroups();
+  MORPHOLOGIES = data.morphologies;
+  FLAT_GROUPS = data.flatGroups;
   render();
 }
 
@@ -428,29 +506,62 @@ function readableTextColor(hex) {
   return luminance > 0.55 ? '#14181c' : '#f5f5f5';
 }
 
+function addClassGroup(container, groupName, items) {
+  const g = document.createElement('div');
+  g.className = 'group';
+  const h = document.createElement('h2');
+  h.textContent = groupName;
+  g.appendChild(h);
+  const grid = document.createElement('div');
+  grid.className = 'grid' + (items.length <= 2 ? ' narrow' : '');
+  for (const [label, key, color] of items) {
+    const btn = document.createElement('button');
+    btn.className = 'clsBtn';
+    btn.dataset.label = label;
+    btn.style.background = color;
+    btn.style.color = readableTextColor(color);
+    btn.innerHTML = label + (key ? '<span class="key">' + key.toUpperCase() + '</span>' : '');
+    btn.onclick = () => annotate(label);
+    grid.appendChild(btn);
+  }
+  g.appendChild(grid);
+  container.appendChild(g);
+}
+
 function renderGroups() {
   const container = document.getElementById('groups');
   container.innerHTML = '';
-  for (const [groupName, items] of GROUPS) {
-    const g = document.createElement('div');
-    g.className = 'group';
-    const h = document.createElement('h2');
-    h.textContent = groupName;
-    g.appendChild(h);
-    const grid = document.createElement('div');
-    grid.className = 'grid' + (items.length <= 2 ? ' narrow' : '');
-    for (const [label, key, color] of items) {
-      const btn = document.createElement('button');
-      btn.className = 'clsBtn';
-      btn.dataset.label = label;
-      btn.style.background = color;
-      btn.style.color = readableTextColor(color);
-      btn.innerHTML = label + (key ? '<span class="key">' + key.toUpperCase() + '</span>' : '');
-      btn.onclick = () => annotate(label);
-      grid.appendChild(btn);
+
+  if (activeMorph) {
+    const morph = MORPHOLOGIES.find(m => m.name === activeMorph);
+    const back = document.createElement('button');
+    back.id = 'backBtn';
+    back.innerHTML = '&larr; Back to categories <span class="key">ESC</span>';
+    back.onclick = () => { activeMorph = null; renderGroups(); };
+    container.appendChild(back);
+    for (const [genusName, items] of morph.genera) {
+      addClassGroup(container, morph.name + ' – ' + genusName, items);
     }
-    g.appendChild(grid);
-    container.appendChild(g);
+    return;
+  }
+
+  const step1 = document.createElement('div');
+  step1.id = 'step1Label';
+  step1.textContent = 'Morphology';
+  container.appendChild(step1);
+  const morphGrid = document.createElement('div');
+  morphGrid.className = 'morphGrid';
+  for (const m of MORPHOLOGIES) {
+    const btn = document.createElement('button');
+    btn.className = 'morphBtn';
+    btn.innerHTML = m.name + (m.key ? '<span class="key">' + m.key.toUpperCase() + '</span>' : '');
+    btn.onclick = () => { activeMorph = m.name; renderGroups(); };
+    morphGrid.appendChild(btn);
+  }
+  container.appendChild(morphGrid);
+
+  for (const [groupName, items] of FLAT_GROUPS) {
+    addClassGroup(container, groupName, items);
   }
 }
 
@@ -470,12 +581,16 @@ function render() {
     curLabel.classList.add('set');
     badge.textContent = '✓ ' + im.class;
     badge.style.display = 'block';
+    // Jump the sidebar to whichever step (morphology panel or step 1) actually
+    // contains this image's existing label, so it's visible and highlighted.
+    activeMorph = morphOfLabel(im.class);
   } else {
     curLabel.textContent = 'No label';
     curLabel.classList.remove('set');
     badge.style.display = 'none';
   }
 
+  renderGroups();
   document.querySelectorAll('.clsBtn').forEach(btn => {
     btn.classList.toggle('selected', btn.dataset.label === im.class);
   });
@@ -533,8 +648,22 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') { goto(idx + 1); return; }
   if (e.key === 'ArrowLeft') { goto(idx - 1); return; }
   if (e.key === 'Backspace' || e.key === 'Delete') { clearLabel(); return; }
+  if (e.key === 'Escape' && activeMorph) { activeMorph = null; renderGroups(); return; }
+
+  if (activeMorph) {
+    const morph = MORPHOLOGIES.find(m => m.name === activeMorph);
+    const KEY_MAP = {};
+    for (const [, items] of morph.genera) for (const [label, key] of items) if (key) KEY_MAP[key.toLowerCase()] = label;
+    const label = KEY_MAP[e.key.toLowerCase()];
+    if (label) { annotate(label); return; }
+    return;
+  }
+
+  for (const m of MORPHOLOGIES) {
+    if (m.key && m.key.toLowerCase() === e.key.toLowerCase()) { activeMorph = m.name; renderGroups(); return; }
+  }
   const KEY_MAP = {};
-  for (const [, items] of GROUPS) for (const [label, key] of items) KEY_MAP[key.toLowerCase()] = label;
+  for (const [, items] of FLAT_GROUPS) for (const [label, key] of items) if (key) KEY_MAP[key.toLowerCase()] = label;
   const label = KEY_MAP[e.key.toLowerCase()];
   if (label) annotate(label);
 });

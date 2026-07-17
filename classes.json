@@ -1,50 +1,232 @@
 [
   {
-    "group": "Acropora",
-    "classes": [
-      {"label": "Acropora alive", "key": "1", "color": "#2ecc71"},
-      {"label": "Acropora bleached", "key": "2", "color": "#f5f5dc"},
-      {"label": "Acropora dead", "key": "3", "color": "#7f8c8d"}
+    "morphology": "Branching",
+    "key": "b",
+    "genera": [
+      {
+        "genus": "Acropora",
+        "classes": [
+          {"label": "Acropora branching alive", "key": "1", "color": "#2ecc71"},
+          {"label": "Acropora branching bleached", "key": "2", "color": "#f5f5dc"},
+          {"label": "Acropora branching dead", "key": "3", "color": "#7f8c8d"}
+        ]
+      },
+      {
+        "genus": "Pocillopora",
+        "classes": [
+          {"label": "Pocillopora branching alive", "key": "4", "color": "#27ae60"},
+          {"label": "Pocillopora branching bleached", "key": "5", "color": "#f0e68c"},
+          {"label": "Pocillopora branching dead", "key": "6", "color": "#707b7c"}
+        ]
+      },
+      {
+        "genus": "Other / unclear genus",
+        "classes": [
+          {"label": "Branching coral alive", "key": "7", "color": "#58d68d"},
+          {"label": "Branching coral bleached", "key": "8", "color": "#fafad2"},
+          {"label": "Branching coral dead", "key": "9", "color": "#839192"}
+        ]
+      }
     ]
   },
   {
-    "group": "Pocillopora",
-    "classes": [
-      {"label": "Pocillopora alive", "key": "4", "color": "#27ae60"},
-      {"label": "Pocillopora bleached", "key": "5", "color": "#f0e68c"},
-      {"label": "Pocillopora dead", "key": "6", "color": "#707b7c"}
+    "morphology": "Massive",
+    "key": "m",
+    "genera": [
+      {
+        "genus": "Porites",
+        "classes": [
+          {"label": "Porites massive alive", "key": "1", "color": "#16a085"},
+          {"label": "Porites massive bleached", "key": "2", "color": "#eee8aa"},
+          {"label": "Porites massive dead", "key": "3", "color": "#666666"}
+        ]
+      },
+      {
+        "genus": "Favites",
+        "classes": [
+          {"label": "Favites massive alive", "key": "4", "color": "#c39bd3"},
+          {"label": "Favites massive bleached", "key": "5", "color": "#fdebd0"},
+          {"label": "Favites massive dead", "key": "6", "color": "#797d7f"}
+        ]
+      },
+      {
+        "genus": "Galaxea",
+        "classes": [
+          {"label": "Galaxea massive alive", "key": "7", "color": "#1abc9c"},
+          {"label": "Galaxea massive bleached", "key": "8", "color": "#f9e79f"},
+          {"label": "Galaxea massive dead", "key": "9", "color": "#839192"}
+        ]
+      },
+      {
+        "genus": "Dipsastraea",
+        "classes": [
+          {"label": "Dipsastraea massive alive", "key": "q", "color": "#a3e4d7"},
+          {"label": "Dipsastraea massive bleached", "key": "w", "color": "#fcf3cf"},
+          {"label": "Dipsastraea massive dead", "key": "e", "color": "#797d7f"}
+        ]
+      },
+      {
+        "genus": "Other / unclear genus",
+        "classes": [
+          {"label": "Massive coral alive", "key": "r", "color": "#48c9b0"},
+          {"label": "Massive coral bleached", "key": "t", "color": "#fdfd96"},
+          {"label": "Massive coral dead", "key": "y", "color": "#95a5a6"}
+        ]
+      }
     ]
   },
   {
-    "group": "Porites",
-    "classes": [
-      {"label": "Porites alive", "key": "7", "color": "#16a085"},
-      {"label": "Porites bleached", "key": "8", "color": "#eee8aa"},
-      {"label": "Porites dead", "key": "9", "color": "#666666"}
+    "morphology": "Tabula",
+    "key": "t",
+    "genera": [
+      {
+        "genus": "Acropora",
+        "classes": [
+          {"label": "Acropora tabular alive", "key": "1", "color": "#27ae60"},
+          {"label": "Acropora tabular bleached", "key": "2", "color": "#f7f3d0"},
+          {"label": "Acropora tabular dead", "key": "3", "color": "#7f8c8d"}
+        ]
+      },
+      {
+        "genus": "Other / unclear genus",
+        "classes": [
+          {"label": "Tabular coral alive", "key": "4", "color": "#52be80"},
+          {"label": "Tabular coral bleached", "key": "5", "color": "#faf3c0"},
+          {"label": "Tabular coral dead", "key": "6", "color": "#839192"}
+        ]
+      }
     ]
   },
   {
-    "group": "Branching coral (genus unclear)",
-    "classes": [
-      {"label": "Branching coral alive", "key": "0", "color": "#58d68d"},
-      {"label": "Branching coral bleached", "key": "q", "color": "#fafad2"},
-      {"label": "Branching coral dead", "key": "w", "color": "#839192"}
+    "morphology": "Digitate",
+    "key": "v",
+    "genera": [
+      {
+        "genus": "Acropora",
+        "classes": [
+          {"label": "Acropora digitate alive", "key": "1", "color": "#2ecc71"},
+          {"label": "Acropora digitate bleached", "key": "2", "color": "#f5f5dc"},
+          {"label": "Acropora digitate dead", "key": "3", "color": "#7f8c8d"}
+        ]
+      },
+      {
+        "genus": "Pocillopora",
+        "classes": [
+          {"label": "Pocillopora digitate alive", "key": "4", "color": "#27ae60"},
+          {"label": "Pocillopora digitate bleached", "key": "5", "color": "#f0e68c"},
+          {"label": "Pocillopora digitate dead", "key": "6", "color": "#707b7c"}
+        ]
+      },
+      {
+        "genus": "Other / unclear genus",
+        "classes": [
+          {"label": "Digitate coral alive", "key": "7", "color": "#58d68d"},
+          {"label": "Digitate coral bleached", "key": "8", "color": "#fafad2"},
+          {"label": "Digitate coral dead", "key": "9", "color": "#839192"}
+        ]
+      }
     ]
   },
   {
-    "group": "Massive coral (genus unclear)",
-    "classes": [
-      {"label": "Massive coral alive", "key": "e", "color": "#48c9b0"},
-      {"label": "Massive coral bleached", "key": "r", "color": "#fdfd96"},
-      {"label": "Massive coral dead", "key": "t", "color": "#95a5a6"}
+    "morphology": "Foliose",
+    "key": "n",
+    "genera": [
+      {
+        "genus": "Porites",
+        "classes": [
+          {"label": "Porites foliose alive", "key": "1", "color": "#16a085"},
+          {"label": "Porites foliose bleached", "key": "2", "color": "#eee8aa"},
+          {"label": "Porites foliose dead", "key": "3", "color": "#666666"}
+        ]
+      },
+      {
+        "genus": "Echinopora",
+        "classes": [
+          {"label": "Echinopora alive", "key": "4", "color": "#af7ac5"},
+          {"label": "Echinopora bleached", "key": "5", "color": "#e8daef"},
+          {"label": "Echinopora dead", "key": "6", "color": "#797d7f"}
+        ]
+      },
+      {
+        "genus": "Turbinaria",
+        "classes": [
+          {"label": "Turbinaria alive", "key": "q", "color": "#5dade2"},
+          {"label": "Turbinaria bleached", "key": "w", "color": "#d6eaf8"},
+          {"label": "Turbinaria dead", "key": "e", "color": "#797d7f"}
+        ]
+      },
+      {
+        "genus": "Other / unclear genus",
+        "classes": [
+          {"label": "Foliose coral alive", "key": "7", "color": "#45b39d"},
+          {"label": "Foliose coral bleached", "key": "8", "color": "#d0f0e8"},
+          {"label": "Foliose coral dead", "key": "9", "color": "#839192"}
+        ]
+      }
     ]
   },
   {
-    "group": "Other coral morphology",
-    "classes": [
-      {"label": "Foliose coral alive", "key": "y", "color": "#45b39d"},
-      {"label": "Encrusting coral alive", "key": "u", "color": "#52be80"},
-      {"label": "Mushroom coral alive", "key": "i", "color": "#af7ac5"}
+    "morphology": "Encrusting",
+    "key": "u",
+    "genera": [
+      {
+        "genus": "Other / unclear genus",
+        "classes": [
+          {"label": "Encrusting coral alive", "key": "1", "color": "#52be80"},
+          {"label": "Encrusting coral bleached", "key": "2", "color": "#d5f5e3"},
+          {"label": "Encrusting coral dead", "key": "3", "color": "#839192"}
+        ]
+      }
+    ]
+  },
+  {
+    "morphology": "Solitary",
+    "key": "i",
+    "genera": [
+      {
+        "genus": "Mushroom",
+        "classes": [
+          {"label": "Mushroom alive", "key": "1", "color": "#af7ac5"},
+          {"label": "Mushroom bleached", "key": "2", "color": "#e8daef"},
+          {"label": "Mushroom dead", "key": "3", "color": "#797d7f"}
+        ]
+      }
+    ]
+  },
+  {
+    "morphology": "Submassive",
+    "key": "e",
+    "genera": [
+      {
+        "genus": "Other / unclear genus",
+        "classes": [
+          {"label": "Submassive coral alive", "key": "1", "color": "#7dcea0"},
+          {"label": "Submassive coral bleached", "key": "2", "color": "#fdebd0"},
+          {"label": "Submassive coral dead", "key": "3", "color": "#839192"}
+        ]
+      }
+    ]
+  },
+  {
+    "morphology": "Meandroid",
+    "key": "r",
+    "genera": [
+      {
+        "genus": "Lobophyllia",
+        "classes": [
+          {"label": "Lobophyllia meandroid alive", "key": "1", "color": "#c0392b"},
+          {"label": "Lobophyllia meandroid bleached", "key": "2", "color": "#f5cba7"},
+          {"label": "Lobophyllia meandroid dead", "key": "3", "color": "#797d7f"}
+        ]
+      },
+      {
+        "genus": "Other / unclear genus",
+        "classes": [
+          {"label": "Meandroid coral alive", "key": "4", "color": "#76d7c4"},
+          {"label": "Meandroid coral bleached", "key": "5", "color": "#fcf3cf"},
+          {"label": "Meandroid coral dead", "key": "6", "color": "#839192"}
+        ]
+      }
     ]
   },
   {
